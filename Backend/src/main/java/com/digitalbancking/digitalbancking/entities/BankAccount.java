@@ -19,11 +19,10 @@ public class BankAccount {
     private String id;
     private double balance;
     private Date createdAt;
+    @Enumerated(EnumType.STRING)
     private AccountStatus status;
-
     @ManyToOne
     private Customer customer;
-
     @OneToMany(mappedBy = "bankAccount")
     private List<AccountOperation> accountOperations;
 
