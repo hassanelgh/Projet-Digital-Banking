@@ -1,5 +1,6 @@
 package com.digitalbancking.digitalbancking;
 
+import com.digitalbancking.digitalbancking.dtos.*;
 import com.digitalbancking.digitalbancking.entities.*;
 import com.digitalbancking.digitalbancking.enums.AccountStatus;
 import com.digitalbancking.digitalbancking.enums.OperationType;
@@ -26,28 +27,27 @@ public class DigitalBanckingApplication {
 		SpringApplication.run(DigitalBanckingApplication.class, args);
 	}
 
-	@Bean
+	//@Bean
 	CommandLineRunner commandLineRunnerForTestServices(BankAccountServiceImpl bankAccountService){
 		return args -> {
 
 			Stream.of("hassan","mahdi","ayoub").forEach(name -> {
-				Customer customer=new Customer();
-				customer.setId(UUID.randomUUID().toString());
-				customer.setName(name);
-				customer.setEmail(name+"@gmaim.com");
-				bankAccountService.saveCustomer(customer);
+				RequestCustomerDTO customerDTO=new RequestCustomerDTO();
+				customerDTO.setName(name);
+				customerDTO.setEmail(name+"@gmaim.com");
+				bankAccountService.saveCustomer(customerDTO);
 			});
 
 			try {
-				for (Customer customer : bankAccountService.listCustomers()) {
-					bankAccountService.saveCurrentBankAccount(Math.random()*9000,90000,customer.getId());
-					bankAccountService.saveSavingBankAccount(Math.random()*2000,5.5,customer.getId());
+				for (CustomerDTO customerDTO : bankAccountService.listCustomers()) {
+					bankAccountService.saveCurrentBankAccount(new RequestSaveCurrentAccountDTO(Math.random()*9000,90000,customerDTO.getId()));
+					bankAccountService.saveSavingBankAccount(new RequestSaveSavingAccountDTO(Math.random()*2000,5.5,customerDTO.getId()));
 				}
 
-				for (BankAccount bankAccount : bankAccountService.listBankAccount()) {
+				for (BankAccountDTO bankAccountDTO : bankAccountService.listBankAccount()) {
 					for (int i = 0; i < 10; i++) {
-							bankAccountService.credit(bankAccount.getId(),10000+2000*Math.random(),"Credit");
-							bankAccountService.debit(bankAccount.getId(),1000*Math.random(),"Debit");
+							bankAccountService.credit(new RequestCreditDTO(bankAccountDTO.getId(),10000+2000*Math.random(),"Credit"));
+							bankAccountService.debit(new RequestDebitDTO(bankAccountDTO.getId(),1000*Math.random(),"Debit"));
 					}
 				}
 			}catch (CustomerNotFoundException | BankAccountNotFoundException | BalanceNotSufficientException e){
